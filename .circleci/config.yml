@@ -43,3 +43,11 @@ jobs:
             . venv/bin/activate
             flask db upgrade
             flask test
+
+workflows:
+  build_test_deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
