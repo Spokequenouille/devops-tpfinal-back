@@ -17,6 +17,11 @@ jobs:
           key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
           paths: 
             - "venv"
+      - image: circleci/postgres:9.6.2-alpine
+        environment: 
+          POSTGRES_USER: myUsr
+          POSTGRES_DB: psdb
+          POSTGRES_PASSWORD: somePwd
   test:
     docker: 
       - image: circleci/python:3.9
