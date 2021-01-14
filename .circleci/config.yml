@@ -41,8 +41,8 @@ jobs:
           name: Launching tests
           command: |
             . venv/bin/activate
-            python -m flask db upgrade
-            python -m flask test
+            python3.9 -m flask db upgrade
+            python3.9 -m flask test
   deploy-heroku:
     docker: 
       - image : buildpack-deps:trusty
