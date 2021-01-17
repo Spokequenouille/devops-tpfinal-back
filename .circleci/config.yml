@@ -8,7 +8,6 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
       - run:
-          name: Install dependencies in a python venv
           command: |
             python3 -m venv venv
             . venv/bin/activate
@@ -35,7 +34,6 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
       - run: 
-          name: Waiting for postgresql
           command : dockerize -wait tcp://localhost:5432 -timeout 1m
       - run: 
           name: Launching tests
@@ -49,7 +47,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Deploy main to heroku
           command: |
             git config --global push.default matching
             git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git main
@@ -66,9 +63,6 @@ workflows:
   build_test_deploy:
     jobs:
       - build
-      - test:
-          requires:
-            - build
       - deploy-heroku:
           context: Heroku
           requires: 
