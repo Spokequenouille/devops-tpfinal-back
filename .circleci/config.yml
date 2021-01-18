@@ -8,11 +8,6 @@ jobs:
           FLASK_APP: autoapp.py
           CONDUIT_SECRET: 'something-really-secret'
           FLASK_DEBUG: 1
-      - image: circleci/postgres:9.6.5-alpine-ram
-        environment:
-          POSTGRES_USER: myUsr
-          POSTGRES_DB: psdb
-          POSTGRES_PASSWORD: somePwd
     steps:
       - checkout
       - restore_cache:
@@ -70,12 +65,33 @@ jobs:
               echo "heroku app not responding, failing deploy"
               exit 1
             fi
-
+  docker-build-push:
+    working_directory: /dockerapp
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name:  dockerize the app 
+          command: |
+            docker build --cache-from=app -t app .
+      - run: 
+          name: Publish app to docker hub
+          command: |
+            docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+            docker tag app $DOCKER_HUB_USERNAME/tp-devops-front:$CIRCLE_BUILD_NUM
+            docker tag app $DOCKER_HUB_USERNAME/tp-devops-front:latest
+            docker push $DOCKER_HUB_USERNAME/tp-devops-front:$CIRCLE_BUILD_NUM
+            docker push $DOCKER_HUB_USERNAME/tp-devops-front:latest
 workflows:
   build_test_deploy:
     jobs:
       - build
       - deploy-heroku:
           context: Heroku
+          requires: 
+            - build
+      - docker-build-push:
           requires: 
             - build
